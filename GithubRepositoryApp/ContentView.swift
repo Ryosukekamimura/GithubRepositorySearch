@@ -10,7 +10,10 @@ import SwiftUI
 
 struct ContentView: View {
     
-    private var array = ["kami"]
+    private var array = ["kami", "kamimura", "ryousuke", "Ryosuke"]
+    
+    @ObservedObject var store = FollowingUserStore()
+    
     @State private var searchText = ""
     @State private var showCancelButton:Bool = false
     
@@ -22,7 +25,9 @@ struct ContentView: View {
                 HStack{
                     HStack{
                         Image(systemName: "magnifyingglass")
-                        TextField("search",text: $searchText, onEditingChanged: {isEditing in self.showCancelButton = true},
+                        //TODO: TextField
+                        TextField("search",text: $searchText, onEditingChanged:
+                            {isEditing in self.showCancelButton = true},
                                   onCommit: {
                                     print("onCommit")
                         }).foregroundColor(.primary)
@@ -52,10 +57,14 @@ struct ContentView: View {
                     
                 .navigationBarHidden(showCancelButton)
                 
-                List{
-                    ForEach(array.filter{$0.hasPrefix(searchText) || searchText == ""}, id:\.self){
-                        searchText in Text(searchText)
-                    }
+//                List{
+//                    //ForEach
+////                    ForEach(array.filter{$0.hasPrefix(searchText) || searchText == ""}, id:\.self){
+////                        searchText in Text(searchText)
+//
+//                    }
+                List(store.users){
+                    (user) in UserRow(user: user)
                 }
             }
             .navigationBarTitle(Text("Github Repository"))
@@ -72,12 +81,11 @@ struct ContentView_Previews: PreviewProvider {
         Group{
             ContentView()
                 .environment(\.colorScheme, .light)
-            ContentView()
-                .environment(\.colorScheme, .dark)
         }
     }
 }
 
+//What's this?
 extension UIApplication{
     func endEditing(_ force: Bool){
         self.windows
@@ -86,6 +94,7 @@ extension UIApplication{
             .endEditing(force)
     }
 }
+// What's this?
 
 struct ResignKeyboardOnDragGesture: ViewModifier{
     var gesture = DragGesture().onChanged{_ in UIApplication.shared.endEditing(true)}
@@ -95,8 +104,17 @@ struct ResignKeyboardOnDragGesture: ViewModifier{
     }
 }
 
+//What's this?
 extension View{
     func resignKeyboardOnDragGesture() -> some View{
         return modifier(ResignKeyboardOnDragGesture())
+    }
+}
+
+struct UserRow: View {
+    var user: User
+    
+    var body: some View{
+        Text(user.login)
     }
 }
